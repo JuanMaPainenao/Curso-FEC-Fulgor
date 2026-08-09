@@ -1,0 +1,14 @@
+# Visual Studio Code
+.vscode/
+**/.vscode/
+*.code-workspace
+
+# Archivos de base de datos e índices de C/C++ en VS Code
+*.vc.db
+*.vc.db-shm
+*.vc.db-wal
+
+# Archivos temporales y de caché de Python
+__pycache__/
+*.pyc
+*.pyo
