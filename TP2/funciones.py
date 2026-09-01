@@ -68,6 +68,40 @@ class gf:
             return 1 if n == 0 else 0
         return self.antilog[pot]
 
+    def peso(self, v):
+        p = 0
+        for i in range(len(v)):
+            if v[i] != 0:
+                p += 1
+        return p
+
+    def mult_vector_matriz(self, v, M):
+        cols_M = len(M[0])
+        C = []
+        for j in range(cols_M):
+            acum = 0
+            for k in range(len(v)):
+                prod = self.producto(v[k], M[k][j])
+                acum = self.suma(acum, prod)
+            C.append(acum)
+        return C
+
+    def mult_matrices(self, A, B):
+        filas_A = len(A)
+        cols_A  = len(A[0])
+        cols_B  = len(B[0])
+        C = []
+        for i in range(filas_A):
+            fila = []
+            for j in range(cols_B):
+                acum = 0
+                for k in range(cols_A):
+                    prod = self.producto(A[i][k], B[k][j])
+                    acum = self.suma(acum, prod)
+                fila.append(acum)
+            C.append(fila)
+        return C
+
 class GFPoly:
     def __init__(self, campo, coeficientes):
         self.campo = campo
@@ -165,6 +199,7 @@ class GFPoly:
             pol = GFPoly(self.campo, [1, listaR[i]])
             resultado = resultado.multP(pol)
         return resultado
+
 
 
 if __name__ == "__main__":
