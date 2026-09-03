@@ -83,6 +83,14 @@ def peso(v):
                p += 1
      return p  
 
+def dec_vbin(num, num_bits=12):
+    vector = []
+    for i in range(num_bits - 1, -1, -1):
+        bit_desplazado = num >> i
+        bit = bit_desplazado & 1
+        vector.append(bit)
+    return vector
+
 
 def u_i(pos):
      u = [0,0,0,0,0,0,0,0,0,0,0,0]
@@ -268,3 +276,56 @@ if __name__ == "__main__":
      print("s:", s)
      print("p:", p)
      print('--------------')
+
+
+     # EJERCICIO 5
+     # Verificaciones
+
+     g_ht = gf2.mult_matrices(G, traspuesta(H))
+     print("G * H^T:", g_ht)
+     print('--------------')
+
+     b2 = gf2.mult_matrices(B, B)
+     print("B * B:", b2)
+     print('--------------')
+
+     # Las verificacion dieron correctamente, GHt = 0 y BB = 0
+
+     # Codeword fuerza bruta
+
+     words = [0]*(2**12)
+     for i in range(2**12):
+          words[i] = i
+          # print("palabra", i, " ", words[i])
+
+     codewords = [0]*len(words)
+
+     for i in range(2**12):
+          # print("DEC a BIN: ", dec_vbin(words[i]))
+          codewords[i] = gf2.mult_vector_matriz(dec_vbin(words[i]),G)
+
+     cont0 = 0 
+     cont8 = 0
+     cont12 = 0
+     cont16 = 0
+     cont24 = 0
+
+
+     for i in range(2**12):
+          pesocodew = gf2.peso(codewords[i])
+          if pesocodew==0:
+               cont0 = cont0 + 1
+          elif pesocodew == 8:
+               cont8 = cont8 + 1
+          elif pesocodew == 12:
+               cont12 = cont12 + 1
+          elif pesocodew == 16:
+               cont16 = cont16 + 1
+          elif pesocodew == 24:
+               cont24 = cont24 + 1
+
+     print("Peso 0: ", cont0, "Peso 8: ", cont8, "Peso 12: ", cont12, "Peso 16: ", cont16, "Peso 24: ", cont24)
+
+     # Se observa que la simulacion por fuerza bruta coincide con la tabla del Ej 2
+
+     # EJERCICIO 6
