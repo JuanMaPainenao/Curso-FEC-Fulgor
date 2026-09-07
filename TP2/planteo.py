@@ -97,6 +97,10 @@ def u_i(pos):
      u[pos] = 1
      return u
 
+def codificador(mensaje, g):
+     c = mult_vector_matriz(dec_vbin(mensaje), g)
+     return  c
+
 def deco(recibido):
      r = recibido
      r_msg = r[:12]
@@ -107,6 +111,8 @@ def deco(recibido):
      pos_2 = 0
      flag_4 = 0
      pos_4 = 0
+     flag_corregible = False
+     flag_no_corregible = False
      for i in range(len(B)):
           if peso(xor_vectores(s, B[i])) <= 2:
                flag_2 = 1
@@ -122,36 +128,44 @@ def deco(recibido):
      vector_nulo = [0,0,0,0,0,0,0,0,0,0,0,0]
 
      if peso(s) <= 3:
-          print('Caso 1')
           e = vector_nulo + s
           v = xor_vectores(r, e)
-          v=v[:12]
-          return e,v
+          v = v[:12]
+          flag_corregible = True
+          flag_no_corregible = False
+          # print('Caso 1 - errores solo en la paridad, peso del patron:', peso(e))
+          return v, e, flag_corregible, flag_no_corregible
           # e = (0 | s)
      elif flag_2 == 1:
-          print('Caso 2 - un error en el mensaje, posicion:', pos_2)
           e = u_i(pos_2) + xor_vectores(s, B[pos_2])
           v = xor_vectores(r, e)
-          v=v[:12]
-          return e,v
+          v = v[:12]
+          flag_corregible = True
+          flag_no_corregible = False
+          # print('Caso 2 - 1 error en el mensaje (pos', pos_2, ') + paridad, peso total:', peso(e))
+          return v, e, flag_corregible, flag_no_corregible
           # e = (u_{pos_2} | s XOR B[pos_2])
      elif peso(q) <= 3:
-          print('Caso 3 - errores todos en el mensaje')
           e = q + vector_nulo
           v = xor_vectores(r, e)
-          v=v[:12]
-          return e,v
+          v = v[:12]
+          flag_corregible = True
+          flag_no_corregible = False
+          # print('Caso 3 - errores solo en el mensaje, peso del patron:', peso(e))
+          return v, e, flag_corregible, flag_no_corregible
           # e = (q | 0)
      elif flag_4 == 1:
-          print('Caso 4 - un error en la paridad, posicion:', pos_4)
           e = xor_vectores(q, B[pos_4]) + u_i(pos_4)
           v = xor_vectores(r, e)
-          v=v[:12]
-          return e,v
+          v = v[:12]
+          flag_corregible = True
+          flag_no_corregible = False
+          # print('Caso 4 - 1 error en la paridad (pos', pos_4, ') + mensaje, peso total:', peso(e))
+          return v, e, flag_corregible, flag_no_corregible
           # e = (q XOR B[pos_4] | u_{pos_4})
      else:
-          print('Caso 5 - No se puede corregir')
-          return None, None
+          # print('Caso 5 - No se puede corregir')
+          return None, None, False, True
 
 
 
@@ -171,18 +185,18 @@ if __name__ == "__main__":
           [1,1,1,1,0,0,0,1,1,0,1,0],
           [1,1,1,0,1,0,1,0,1,0,0,1]]
 
-     G = [[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,0,1,1,1,1],
-          [0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,0,0,1,1,1],
-          [0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,1,0,1,1,1],
-          [0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,0,0,0,1,0],
-          [0,0,0,0,1,0,0,0,0,0,0,0,1,1,0,1,1,1,0,1,0,0,0,1],
-          [0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,0,0],
-          [0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,1,1,1,1,0,1],
-          [0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1,0,1,1,1,1,1,0],
-          [0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,1,1,0,1,1],
-          [0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,0,0,1,1,1,0,1,0,0],
-          [0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,1,1,0,1,0],
-          [0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,0,1,0,1,0,0,1]]
+     G = [[1,0,0,0,0,0,0,0,0,0,0,0, 1,0,0,1,1,0,0,0,1,1,1,1],
+          [0,1,0,0,0,0,0,0,0,0,0,0, 0,1,0,0,1,1,1,0,0,1,1,1],
+          [0,0,1,0,0,0,0,0,0,0,0,0, 0,0,1,1,0,1,0,1,0,1,1,1],
+          [0,0,0,1,0,0,0,0,0,0,0,0, 1,0,1,1,1,1,1,0,0,0,1,0],
+          [0,0,0,0,1,0,0,0,0,0,0,0, 1,1,0,1,1,1,0,1,0,0,0,1],
+          [0,0,0,0,0,1,0,0,0,0,0,0, 0,1,1,1,1,1,0,0,1,1,0,0],
+          [0,0,0,0,0,0,1,0,0,0,0,0, 0,1,0,1,0,0,1,1,1,1,0,1],
+          [0,0,0,0,0,0,0,1,0,0,0,0, 0,0,1,0,1,0,1,1,1,1,1,0],
+          [0,0,0,0,0,0,0,0,1,0,0,0, 1,0,0,0,0,1,1,1,1,0,1,1],
+          [0,0,0,0,0,0,0,0,0,1,0,0, 1,1,1,0,0,1,1,1,0,1,0,0],
+          [0,0,0,0,0,0,0,0,0,0,1,0, 1,1,1,1,0,0,0,1,1,0,1,0],
+          [0,0,0,0,0,0,0,0,0,0,0,1, 1,1,1,0,1,0,1,0,1,0,0,1]]
 
      H = [[1,0,0,1,1,0,0,0,1,1,1,1, 1,0,0,0,0,0,0,0,0,0,0,0],
           [0,1,0,0,1,1,1,0,0,1,1,1, 0,1,0,0,0,0,0,0,0,0,0,0],
@@ -197,6 +211,10 @@ if __name__ == "__main__":
           [1,1,1,1,0,0,0,1,1,0,1,0, 0,0,0,0,0,0,0,0,0,0,1,0],
           [1,1,1,0,1,0,1,0,1,0,0,1, 0,0,0,0,0,0,0,0,0,0,0,1]]
 
+     H = []
+     for i in range(len(B)):
+          fila = B[i] + u_i(i)   # [ B[i] | e_i ]
+          H.append(fila)
 
      # EJERCICIO 1
 
@@ -236,19 +254,24 @@ if __name__ == "__main__":
      r2 = hex_bin(r2)
      r3 = hex_bin(r3)
 
-     v1, e1 = deco(r1)
+     v1, e1, crr1, ncrr1 = deco(r1)
      print('v1:', v1)
      print('e1:', e1)
+     print('crr1', crr1)
+     print('ncrr1', ncrr1)
      print('--------------')
-     v2, e2 = deco(r2)
+     v2, e2, crr2, ncrr2 = deco(r2)
      print('v2:', v2)
      print('e2:', e2)
-     print('--------------')
-     v3, e3 = deco(r3)
+     print('crr2', crr2)
+     print('ncrr2', ncrr2)
+     print('--------------')     
+     v3, e3, crr3, ncrr3 = deco(r3)
      print('v3:', v3)
      print('e3:', e3)
+     print('crr3', crr3)
+     print('ncrr3', ncrr3)
      print('--------------')
-
 
 
      # EJERCICIO 4
@@ -329,3 +352,108 @@ if __name__ == "__main__":
      # Se observa que la simulacion por fuerza bruta coincide con la tabla del Ej 2
 
      # EJERCICIO 6
+     # Declarados arriba, las funciones deco(recibido) y codificador(mensaje, g)
+
+     # EJERCICIO 7
+
+     PO = [0] * 24
+
+
+     patrones1 = 0
+     corregido1 = 0
+     otra1 = 0
+     detectado1 = 0
+
+     patrones2 = 0
+     corregido2 = 0
+     otra2 = 0
+     detectado2 = 0
+
+     patrones3 = 0
+     corregido3 = 0
+     otra3 = 0
+     detectado3 = 0
+
+     patrones4 = 0
+     corregido4 = 0
+     otra4 = 0
+     detectado4 = 0
+
+     for i in range(24):
+          P1 = [0]*24
+          P1[i] = 1
+
+          v1, e1, fc1, fnc1 = deco(P1)
+
+          patrones1 = patrones1 + 1
+          if fnc1 == True:
+               detectado1 = detectado1 + 1
+          elif e1 == P1:
+               corregido1 = corregido1 + 1
+          else:
+               otra1 = otra1 + 1
+
+     print('W = 1 -> patrones:', patrones1, 'corregidos:', corregido1, 'otra palabra:', otra1, 'detectados:', detectado1)
+
+
+     for i in range(24):
+          for j in range(i+1, 24):
+               P2 = [0]*24
+               P2[i] = 1
+               P2[j] = 1
+
+               v2, e2, fc2, fnc2 = deco(P2)
+
+               patrones2 = patrones2 + 1
+               if fnc2 == True:
+                    detectado2 = detectado2 + 1
+               elif e2 == P2:
+                    corregido2 = corregido2 + 1
+               else:
+                    otra2 = otra2 + 1
+
+     print('W = 2 -> patrones:', patrones2, 'corregidos:', corregido2, 'otra palabra:', otra2, 'detectados:', detectado2)
+
+          
+     for i in range(24):
+          for j in range(i+1, 24):
+               for h in range(j+1, 24):
+                    P3 = [0]*24
+                    P3[i] = 1
+                    P3[j] = 1
+                    P3[h] = 1
+
+                    v3, e3, fc3, fnc3 = deco(P3)
+
+                    patrones3 = patrones3 + 1
+                    if fnc3 == True:
+                         detectado3 = detectado3 + 1
+                    elif e3 == P3:
+                         corregido3 = corregido3 + 1
+                    else:
+                         otra3 = otra3 + 1
+
+     print('W = 3 -> patrones:', patrones3, 'corregidos:', corregido3, 'otra palabra:', otra3, 'detectados:', detectado3)
+
+
+     for i in range(24):
+          for j in range(i+1, 24):
+               for h in range(j+1, 24):
+                    for t in range(h+1, 24):
+                         P4 = [0]*24
+                         P4[i] = 1
+                         P4[j] = 1
+                         P4[h] = 1
+                         P4[t] = 1
+
+                         v4, e4, fc4, fnc4 = deco(P4)
+
+                         patrones4 = patrones4 + 1
+                         if fnc4 == True:
+                              detectado4 = detectado4 + 1
+                         elif e4 == P4:
+                              corregido4 = corregido4 + 1
+                         else:
+                              otra4 = otra4 + 1
+
+     print('W = 4 -> patrones:', patrones4, 'corregidos:', corregido4, 'otra palabra:', otra4, 'detectados:', detectado4)
