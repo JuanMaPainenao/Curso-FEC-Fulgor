@@ -1,14 +1,16 @@
 module golay_syndrome (
-input wire [23:0] i_rx,
-output wire [11:0] o_syn
+    input wire [23:0] i_rx,
+    output wire [11:0] o_syn
 );
 
+    wire [11:0] r_b;
 
-always @(*) begin
-    
-    o_syn = i_rx[23:12]
+    golay_mult_b u_mult(
+        .i_vec (i_rx[23:12]),
+        .o_vec (r_b)
+    );
 
-end
+    assign o_syn = r_b ^ i_rx[11:0];
 
 
 endmodule
