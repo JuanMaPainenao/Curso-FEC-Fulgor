@@ -8,14 +8,14 @@ module golay_encoder (
 
     golay_mult_b u_mult (
         .i_vec (i_msg),
-        .o_vec (parity)
+        .o_vec (w_parity)
     );
 
     always @(posedge i_clk) begin
         if (i_rst)
             o_cw <= 24'b0;
         else
-            o_cw <= {i_msg, parity};
+            o_cw <= {i_msg, w_parity};
     end
 
 endmodule

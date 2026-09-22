@@ -9,8 +9,8 @@ module golay_err_gen (
 );
 
 reg [23:0] err_reg;
-wire [11:0] u_syn = 12'b1 << i_idx_syn;
-wire [11:0] u_q = 12'b1 << i_idx_q;
+wire [11:0] u_syn = 12'b1 << (11 - i_idx_syn);
+wire [11:0] u_q = 12'b1 << (11 - i_idx_q);
 reg uncorrectable_reg;
 
 
